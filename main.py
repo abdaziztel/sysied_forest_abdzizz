@@ -73,28 +73,28 @@ def send_product_data_to_telegram(product_name, product_status, image_url, produ
     bot_token = "6958486146:AAFtYb_TaInJtSSFevXDn39BCssCzj4inV4"
     chat_id = "-1002139155624"
     telegram_api_url = f"https://api.telegram.org/bot{bot_token}/sendPhoto"
-    message_text = f"Product Name: {product_name}\nProduct Status: {product_status}"
-    
+        # Update the message text with emojis, user-friendly language, and bold text
     if product_status == "متوفر":
+        message_text = f"✅ **المنتج متاح** ✅: {product_name}"
         reply_markup = {
             "inline_keyboard": [
-                [{"text": "عرض المنتج", "url": product_link}],
-                [{"text": "عرض السلة", "url": "https://www.dzrt.com/ar/checkout/cart"}],
-                [{"text": "تسجيل الدخول", "url": "https://www.dzrt.com/ar/customer/account/login/"}],
-                [{"text": "الانتقال إلى رابط الدفع النهائي", "url": "https://www.dzrt.com/ar/onestepcheckout.html"}]
+                [{"text": "🔍 عرض المنتج", "url": product_link}, {"text": "🛒 عرض السلة", "url": "https://www.dzrt.com/ar/checkout/cart"}],
+                [{"text": "🔐 تسجيل الدخول", "url": "https://www.dzrt.com/ar/customer/account/login/"}, {"text": "💳 الانتقال إلى رابط الدفع النهائي", "url": "https://www.dzrt.com/ar/onestepcheckout.html"}]
             ]
         }
     else:
+        message_text = f"❌ **نفذ من المخزون** ❌: {product_name}"
         reply_markup = {
             "inline_keyboard": [
-                [{"text": "تسجيل الدخول", "url": "https://www.dzrt.com/ar/customer/account/login/"}]
+                [{"text": "🔐 تسجيل الدخول", "url": "https://www.dzrt.com/ar/customer/account/login/"}]
             ]
         }
-    
+
     params = {
         "chat_id": chat_id,
         "photo": image_url,
         "caption": message_text,
+        "parse_mode": "Markdown",  # Specify Markdown to enable bold text
         "reply_markup": json.dumps(reply_markup)
     }
     
@@ -103,6 +103,7 @@ def send_product_data_to_telegram(product_name, product_status, image_url, produ
         print(f"Product data sent successfully for {product_name}")
     else:
         print(f"Failed to send product data for {product_name}. Status code: {response.status_code}")
+
 # Main function to run the code
 def main():
     global last_sent_status
