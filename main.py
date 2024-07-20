@@ -6,6 +6,9 @@ import time
 # Variable to store the last sent status
 last_sent_status = None
 
+# Path or URL to the stored image for unavailable products
+stored_image_url = "notavaliable.jpg"  # Update this with the actual path or URL
+
 # Function to fetch URL content with retries
 def fetch_url_with_retry(url, max_retries=7, delay=1):
     retries = 0
@@ -73,7 +76,7 @@ def send_product_data_to_telegram(product_name, product_status, image_url, produ
     bot_token = "6958486146:AAFtYb_TaInJtSSFevXDn39BCssCzj4inV4"
     chat_id = "-1002139155624"
     telegram_api_url = f"https://api.telegram.org/bot{bot_token}/sendPhoto"
-        # Update the message text with emojis, user-friendly language, and bold text
+    # Update the message text with emojis, user-friendly language, and bold text
     if product_status == "متوفر":
         message_text = f"✅ **المنتج متاح** ✅: {product_name}"
         reply_markup = {
@@ -89,16 +92,30 @@ def send_product_data_to_telegram(product_name, product_status, image_url, produ
                 [{"text": "🔐 تسجيل الدخول", "url": "https://www.dzrt.com/ar/customer/account/login/"}]
             ]
         }
+        # Use the stored image if the product is not available
+        image_url = stored_image_url
 
-    params = {
-        "chat_id": chat_id,
-        "photo": image_url,
-        "caption": message_text,
-        "parse_mode": "Markdown",  # Specify Markdown to enable bold text
-        "reply_markup": json.dumps(reply_markup)
-    }
-    
-    response = requests.post(telegram_api_url, params=params)
+    # Check if image_url is a local file path
+    if image_url == "notavaliable.jpg":
+        with open(image_url, 'rb') as image_file:
+            files = {'photo': image_file}
+            data = {
+                "chat_id": chat_id,
+                "caption": message_text,
+                "parse_mode": "Markdown",  # Specify Markdown to enable bold text
+                "reply_markup": json.dumps(reply_markup)
+            }
+            response = requests.post(telegram_api_url, data=data, files=files)
+    else:
+        params = {
+            "chat_id": chat_id,
+            "photo": image_url,
+            "caption": message_text,
+            "parse_mode": "Markdown",  # Specify Markdown to enable bold text
+            "reply_markup": json.dumps(reply_markup)
+        }
+        response = requests.post(telegram_api_url, params=params)
+
     if response.status_code == 200:
         print(f"Product data sent successfully for {product_name}")
     else:
